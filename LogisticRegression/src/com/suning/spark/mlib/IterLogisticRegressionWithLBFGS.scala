@@ -15,6 +15,7 @@ import org.apache.spark.mllib.regression.{ LinearRegressionWithSGD, LassoWithSGD
 import org.apache.spark.mllib.classification.LogisticRegressionWithSGD
 import org.apache.spark.mllib.classification.{ LogisticRegressionWithLBFGS, LogisticRegressionModel }
 import org.apache.spark.mllib.classification.SVMWithSGD
+import org.apache.spark.mllib.evaluation.BinaryClassificationMetrics
 
 /**
  * @author 14070345
@@ -33,7 +34,7 @@ object IterLogisticRegressionWithLBFGS {
 
   def main(args: Array[String]): Unit = {
 
-    val path: String = "/user/spark/model/IterLogisticRegressionWithLBFGS"
+    val path: String = "/user/spark/model/IterLogisticRegressionWithLBFGS1"
     val logger = Logger.getLogger(LogisticRegressionWithLBFGS.getClass);
     val sparkConf = new SparkConf().setAppName("IterLogisticRegressionWithLBFGS")
     val sc = new SparkContext(sparkConf)
@@ -74,8 +75,6 @@ object IterLogisticRegressionWithLBFGS {
       "app_four_page_num", "app_group_gds_addcart", "app_group_gds_collect", "app_group_fourpage_pv",
       "app_group_fourpage_time", "app_visitor_pv", "app_search_pv", "app_list_pv", "app_is_view1", "app_is_view",
       "app_view_cycle_days", "app_view_days", "gds_score_desc", "l4_gds_group_rate_n")
-
- 
 
     val computeMetaDataRDD = sqlContext.sql("select * from spark.datavar").rdd
 
@@ -129,8 +128,9 @@ object IterLogisticRegressionWithLBFGS {
     var temploss: Double = 0;
     var condition = true
     var n: Int = 0
+    var rmse = math.sqrt(loss / test.count())
 
-    while (n < 100000 && condition) {
+    while(n < 100000 && condition) {
       param = param - (param / 10)
       algorithm.optimizer.setRegParam(param)
       model = algorithm.run(training)
@@ -141,15 +141,15 @@ object IterLogisticRegressionWithLBFGS {
           val err = p - l
           err * err
       }.reduce(_ + _)
-
-      if ((temploss - loss)<0.0001) {
+      rmse = math.sqrt(loss / test.count())
+      if (Math.abs(temploss - rmse) < 0.0000001) {
         condition = false
       } else {
-        temploss = loss
+        temploss = rmse
       }
       n = n + 1
     }
-
+    
     model.save(sc, path + "/model")
     model.clearThreshold()
 
@@ -168,16 +168,26 @@ object IterLogisticRegressionWithLBFGS {
     predictionAndLabel.coalesce(1, true).saveAsTextFile(path + "/predictionAndLabel")
     predictiondata.coalesce(1, true).saveAsTextFile(path + "/predictiondata")
 
-    import org.apache.spark.mllib.evaluation.BinaryClassificationMetrics
+   
     val metrics = new BinaryClassificationMetrics(predictionAndLabel)
 
     println(s"Test areaUnderPR = ${metrics.areaUnderPR()}.")
     println(s"Test areaUnderROC = ${metrics.areaUnderROC()}.")
 
-    val areaUnderPR_areaUnderROC = sc.makeRDD(List("Test areaUnderPR = ${metrics.areaUnderPR()}:" + metrics.areaUnderPR(), "Test areaUnderROC = ${metrics.areaUnderROC()}:" + metrics.areaUnderROC()), 1)
-    areaUnderPR_areaUnderROC.saveAsTextFile(path + "/areaUnderPR_areaUnderROC")
+    loss = predictionAndLabel.map {
+      case (p, l) =>
+        val err = p - l
+        err * err
+    }.reduce(_ + _)
 
-    val rmse = math.sqrt(loss / test.count())
+    rmse = math.sqrt(loss / test.count())
+    val areaUnderPR_areaUnderROC = sc.makeRDD(List("Test areaUnderPR = ${metrics.areaUnderPR()}:" + metrics.areaUnderPR(),
+      "Test areaUnderROC = ${metrics.areaUnderROC()}:" + metrics.areaUnderROC()), 1)
+
+    metrics.recallByThreshold().saveAsTextFile(path + "/recallByThreshold")
+    metrics.precisionByThreshold().saveAsTextFile(path + "/precisionByThreshold")
+    areaUnderPR_areaUnderROC.saveAsTextFile(path + "/areaUnderPR_areaUnderROC")
+    sc.makeRDD(List(rmse), 1).saveAsTextFile(path + "/rmse")
     sc.makeRDD(List(rmse, "param:" + param), 1).saveAsTextFile(path + "/rmse")
     sc.stop()
 
