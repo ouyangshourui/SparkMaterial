@@ -43,6 +43,7 @@ object LogisticRegressionWithSGD {
     val sc = new SparkContext(sparkConf)
    
 
+    
     val sqlContext = new org.apache.spark.sql.hive.HiveContext(sc)
 
     val tableData = sqlContext.sql(dataSelect)
@@ -62,7 +63,7 @@ object LogisticRegressionWithSGD {
     }
 
     /*
-     * for j in range(5,67): 
+     * for j in range(5,67):  for all features
      */
     val lableTableVectorDF = tableData.select("is_order", "pc_gds_addcart", "pc_gds_collect_num", "pc_gds_four_page_pv", "pc_gds_four_page_time",
       "pc_gds_four_page_fromsearch_pv", "pc_gds_four_page_fromlist_pv", "pc_gds_four_page_fromrec_pv",

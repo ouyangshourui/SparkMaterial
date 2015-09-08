@@ -178,11 +178,12 @@ object LogisticRegressionWithLBFGS {
     }.reduce(_ + _)
     
    
+    
+    
     val rmse = math.sqrt(loss / test.count())
     val areaUnderPR_areaUnderROC = sc.makeRDD(List("Test areaUnderPR = ${metrics.areaUnderPR()}:" + metrics.areaUnderPR(), 
                                                   "Test areaUnderROC = ${metrics.areaUnderROC()}:" + metrics.areaUnderROC()                                              
-                                                    ), 
-                                                   1)
+                                                    ), 1)
                                                
     metrics.recallByThreshold().saveAsTextFile(path+"/recallByThreshold")  
     metrics.precisionByThreshold().saveAsTextFile(path+"/precisionByThreshold")  
