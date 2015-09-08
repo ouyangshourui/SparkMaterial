@@ -43,7 +43,7 @@ object LogisticRegressionWithLBFGS {
       
     val path:String = "/user/spark/model/LogisticRegressionWithLBFGS/"+args(0).toString()
     val logger = Logger.getLogger(LogisticRegressionWithLBFGS.getClass);
-    val sparkConf = new SparkConf().setAppName("LogisticRegressionWithLBFGS")
+    val sparkConf = new SparkConf().setAppName("LogisticRegressionWithLBFGS"+args(0).toString())
     val sc = new SparkContext(sparkConf)
    
 
