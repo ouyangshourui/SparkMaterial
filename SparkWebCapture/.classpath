@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.scala-ide.sdt.launching.SCALA_CONTAINER"/>
+	<classpathentry kind="lib" path="F:/scala/workspace/SparkWebCapture/lib/jsoup-1.8.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="F:/1.txt/SuningAlarm-0.1.jar" sourcepath="/SparkAlarm/src"/>
+	<classpathentry kind="lib" path="D:/hbase/hbase-0.98.8-hadoop2-bin/hbase-0.98.8-hadoop2/lib/log4j-1.2.17.jar"/>
+	<classpathentry kind="lib" path="D:/spark/package/1.4.0/spark-1.4.0-bin-Suning/lib/spark-assembly-1.4.0-hadoop2.4.0.jar" sourcepath="/spark-core_2.10/src"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>
