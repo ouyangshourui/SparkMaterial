@@ -142,7 +142,7 @@ object IterLogisticRegressionWithLBFGS {
           err * err
       }.reduce(_ + _)
       rmse = math.sqrt(loss / test.count())
-      if (Math.abs(temploss - rmse) < 0.0000001) {
+      if (Math.abs(temploss - rmse) < 0.001) {
         condition = false
       } else {
         temploss = rmse
